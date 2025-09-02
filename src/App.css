@@ -1,0 +1,44 @@
+@import 'tailwindcss';
+@custom-variant dark (&:where(.dark, .dark *));
+@theme {
+    --color-primary: #A1D8FC;
+    --color-primary-soft: #D7EEFE;
+    --color-primary-text: #010C14;
+
+    --color-secondary: #4361EE;
+    --color-secondary-soft: #6A83F1;
+
+    --color-accent: #71F79F;
+    --color-accent-soft: #9FF9BE;
+}
+@layer theme {
+  .dark {
+    --color-primary: #171923;
+    --color-primary-soft: #404663;
+    --color-primary-text: #E6E8EF;
+
+    --color-secondary: #55286F;
+    --color-secondary-soft: #944BBE;
+
+    --color-accent: #BC96E6;
+    --color-accent-soft: #D5BDEF;
+  }
+  .light {
+    --color-primary: #A1D8FC;
+    --color-primary-soft: #D7EEFE;
+    --color-primary-text: #010C14;
+
+    --color-secondary: #6A83F1;
+    --color-secondary-soft: #4361EE;
+
+    --color-accent: #71F79F;
+    --color-accent-soft: #9FF9BE;
+  }
+}
+
+.dark .theme_filter {
+  filter: invert(70%) sepia(45%) saturate(1384%) hue-rotate(207deg) brightness(97%) contrast(86%);
+}
+.theme_filter {
+  filter: invert(36%) sepia(40%) saturate(2362%) hue-rotate(210deg) brightness(93%) contrast(102%);
+}
