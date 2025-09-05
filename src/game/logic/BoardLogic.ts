@@ -1,6 +1,6 @@
 /* eslint-disable for-direction */
 import { type Tileset, type TileData, BlockColors } from '../types';
-const COLORS = ['#e74c3c', '#3498db', '#2ecc71', ''];
+const COLORS = [BlockColors.red, BlockColors.yellow, BlockColors.green, BlockColors.empty];
 
 export const strToBlockColor = (s: string) => {
   switch (s) {
@@ -37,7 +37,7 @@ export const blockColorToStr = (c: string | null) => {
   return '';
 };
 export const createRandomBoard = (width: number, height: number): Tileset => {
-  return Array.from({ length: height }, (_, r) =>
+  const newBoard = Array.from({ length: height }, (_, r) =>
     Array.from({ length: width }, (_, c) => ({
       id: `${r}-${c}`,
       row: r,
@@ -45,6 +45,7 @@ export const createRandomBoard = (width: number, height: number): Tileset => {
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
     }))
   );
+  return applyGravity(newBoard);
 };
 export const loadBoardFromStringArr = (tileset: string[][], height: number, width: number) => {
   return Array.from({ length: height }, (_, r) =>
@@ -70,7 +71,15 @@ export const changeGroupOfTiles = (tileBoard: Tileset, tiles: TileData[], color:
     tileBoard[tile.row][tile.col].color = color;
   });
 
-  return applyGravity(tileBoard);
+  return tileBoard;
+};
+export const scoreSetTiles = (tiles: TileData[]) => {
+  const baselineScorePerTile = 50;
+  const tilesHit = tiles.length;
+  if(tilesHit > 3) return tilesHit * baselineScorePerTile;
+  if(tilesHit > 4) return tilesHit * (baselineScorePerTile * 2);
+  if(tilesHit > 6) return tilesHit * (baselineScorePerTile * 4);
+  return 0;
 };
 export function findConnectedTiles(board: Tileset, row: number, col: number) {
   const directions = { up: [0, 1], down: [0, -1], left: [1, 0], right: [-1, 0] };
@@ -113,51 +122,106 @@ export function findConnectedTiles(board: Tileset, row: number, col: number) {
   if (validTiles.length > 2) return validTiles;
   return [];
 }
-export function applyGravity(board: Tileset) {
-  console.log('applying gravity.')
-  const tileAbove = (tile: TileData) => {
-    if (tile.row - 1 < 0) return null;
-    return board[tile.row - 1][tile.col];
-  };
-  const pullDownColoredTileAbove = (tile: TileData) => {
-    let foundTile: TileData | null = null;
-    const checkingRow: number = tile.col;
-    let movement: number = 0;
-    while (!foundTile && checkingRow - movement > 0) {
-      // if we haven't hit an edge...
-      // console.log('checking row...',checkingRow - movement)
-      const aboveTile = tileAbove(board[checkingRow - movement][tile.col]);
-      if (aboveTile) {
-        // check it's color. if transparent, look above it(change row).
-        if (aboveTile.color !== BlockColors.empty) {
-          foundTile = aboveTile;
-          break;
-        }
+export function copyBoard(board: TileData[][]) {
+  const rows = board.length;
+  const cols = board[0].length;
+  return Array.from({ length: rows }, (_, r) =>
+    Array.from({ length: cols }, (_, c) => ({ ...board[r][c] }))
+  );
+}
+export function applyGravity(board: TileData[][]): TileData[][] {
+  const rows = board.length;
+  const cols = board[0].length;
+
+  // Deep copy so we dont mutate the original
+  const newBoard: TileData[][] = copyBoard(board);
+
+  for (let col = 0; col < cols; col++) {
+    // Collect non-null tiles from bottom to top
+    const stack: TileData[] = [];
+    for (let row = rows - 1; row >= 0; row--) {
+      if (newBoard[row][col].color !== BlockColors.empty) {
+        stack.push(newBoard[row][col]);
       }
-      movement++;
     }
-    if (foundTile != null) {
-      console.log('found this tile', foundTile);
-      // original position
-      changeTileInSet(board, foundTile.row, foundTile.col, BlockColors.empty);
-      // new position
-      changeTileInSet(board, tile.row, tile.col, foundTile.color);
+
+    // Fill column bottom-up with collected tiles
+    let writeRow = rows - 1;
+    for (const tile of stack) {
+      newBoard[writeRow][col] = { ...tile, row: writeRow, col };
+      writeRow--;
     }
-  };
-  for (let r = board.length - 1; r > -1; r--) {
-    console.log('starting loops', r)
-    for (let c = board[r].length - 1; c > -1; c--) {
-      const tile = board[r][c];
-      if (tile.color === BlockColors.empty) {
-        console.log('found an empty one', tile)
-        pullDownColoredTileAbove(tile);
+
+    // Fill remaining spaces with "empty" tiles
+    for (let r = writeRow; r >= 0; r--) {
+      newBoard[r][col] = {
+        id: `${r}-${col}`,
+        row: r,
+        col,
+        color: BlockColors.empty,
+      };
+    }
+  }
+
+  return newBoard;
+}
+export function collapseToCenter(board: TileData[][]): TileData[][] {
+  const rows = board.length;
+  const cols = board[0].length;
+
+  // extract active columns
+  const activeColumns: TileData[][] = [];
+  for (let col = 0; col < cols; col++) {
+    const hasTile = board.some(row => row[col].color !== BlockColors.empty);
+    if (hasTile) {
+      const columnTiles = board.map(row => ({ ...row[col] }));
+      activeColumns.push(columnTiles);
+    }
+  }
+
+  const activeCols = activeColumns.length;
+
+  // calculate target placement
+  const newBoard: TileData[][] = Array.from({ length: rows }, (_, r) =>
+    Array.from({ length: cols }, (_, c) => ({
+      id: `${r}-${c}`,
+      row: r,
+      col: c,
+      color: BlockColors.empty,
+    }))
+  );
+
+  if (activeCols === 0) return newBoard;
+
+  let startCol: number;
+  if (cols % 2 === 1) {
+    // odd width: single center
+    const center = Math.floor(cols / 2);
+    startCol = center - Math.floor(activeCols / 2);
+  } else {
+    // even width: two middle columns
+    const centerLeft = cols / 2 - 1;
+    startCol = centerLeft - Math.floor((activeCols - 1) / 2);
+  }
+
+  // place active columns into new board
+  for (let i = 0; i < activeCols; i++) {
+    const targetCol = startCol + i;
+    for (let row = 0; row < rows; row++) {
+      const tile = activeColumns[i][row];
+      if (tile.color !== BlockColors.empty) {
+        newBoard[row][targetCol] = {
+          color: tile.color,
+          id: `${row}-${targetCol}`,
+          row,
+          col: targetCol,
+        };
       }
     }
   }
-  console.log('ending loops');
-  return [...board]
-}
 
+  return newBoard;
+}
 export function test() {
   const width = 4;
   const height = 4;

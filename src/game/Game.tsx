@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { type TileData, type Tileset, BlockColors } from './types';
-import {createRandomBoard, findConnectedTiles, changeGroupOfTiles} from './logic/BoardLogic';
+import {createRandomBoard,collapseToCenter, applyGravity, findConnectedTiles, changeGroupOfTiles, copyBoard, scoreSetTiles} from './logic/BoardLogic';
 import Board from './components/Board';
 
 const Game: React.FC = () => {
@@ -16,7 +16,11 @@ const Game: React.FC = () => {
     console.log('connected tiles', findConnectedTiles(board, row, col));
     const tilesToChange = findConnectedTiles(board, row, col);
     if (tilesToChange.length > 3) {
-      setBoard((prev) => changeGroupOfTiles(prev, tilesToChange, BlockColors.empty));
+      setBoard((prev) => {
+        const tempBoard = changeGroupOfTiles(copyBoard(prev), tilesToChange, BlockColors.empty);
+        return collapseToCenter(applyGravity(tempBoard))
+      });
+      setScore(prev=>prev + scoreSetTiles(tilesToChange))
     }
   };
 
