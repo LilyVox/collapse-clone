@@ -5,7 +5,7 @@ const Board: React.FC<BoardProps> = ({ board, onTileClick }) => {
 
   return (
     <div
-      className="grid gap-1"
+      className="grid gap-0"
       style={{
         gridTemplateColumns: `repeat(${board[0].length}, minmax(0, 1fr))`,
       }}

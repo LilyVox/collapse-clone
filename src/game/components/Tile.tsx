@@ -1,24 +1,28 @@
 // renders a single tile and holds logic
-import { type TileProps } from '../types';
+import { type TileProps, BlockColors } from '../types';
 
 const Tile: React.FC<TileProps> = ({ row, col, color, onClick }) => {
+  const baseTileStyle = 'w-10 h-10 flex items-center justify-center transition-all duration-200';
   const handleClick = () => {
     if (color) {
       onClick(row, col);
     }
   };
-
+  if (color === BlockColors.empty) {
+    return (
+      <div
+        className={`
+        ${baseTileStyle} rounded-lg bg-transparent cursor-default`}
+        style={{ backgroundColor: 'transparent' }}></div>
+    );
+  }
   return (
     <div
       onClick={handleClick}
       className={`
-        w-10 h-10 rounded-md flex items-center justify-center cursor-pointer
-        transition-all duration-200
-        ${color ? '' : 'bg-transparent cursor-default'}
+        ${baseTileStyle} cursor-pointer border-2 border-border
       `}
-      style={{ backgroundColor: color || 'transparent' }}>
-      {/* optional debug: row,col */}
-    </div>
+      style={{ backgroundColor: color }}></div>
   );
 };
 export default Tile;

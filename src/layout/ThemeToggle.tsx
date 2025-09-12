@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react';
-import Sun from '../assets/sun-fill.svg';
-import Moon from '../assets/moon-stars-fill.svg';
+import {Sun, Moon} from 'lucide-react';
 
 const ThemeToggle = () => {
-  const iconForm = (image: string) =>{
-    return <img src={image} alt={image} className='theme_filter' />;
-  }
   const [theme, setTheme] = useState(() => {
     const storedTheme = localStorage.getItem('theme');
     return storedTheme || 'light';
@@ -27,7 +23,7 @@ const ThemeToggle = () => {
 
   return (
     <button onClick={handleToggle}>
-      {theme === 'dark' ? iconForm(Moon) : iconForm(Sun)}
+      {theme === 'dark' ? <Moon size={24} strokeWidth={1} /> : <Sun size={24} strokeWidth={1} />}
     </button>
   );
 };

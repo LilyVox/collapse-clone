@@ -76,10 +76,7 @@ export const changeGroupOfTiles = (tileBoard: Tileset, tiles: TileData[], color:
 export const scoreSetTiles = (tiles: TileData[]) => {
   const baselineScorePerTile = 50;
   const tilesHit = tiles.length;
-  if(tilesHit > 3) return tilesHit * baselineScorePerTile;
-  if(tilesHit > 4) return tilesHit * (baselineScorePerTile * 2);
-  if(tilesHit > 6) return tilesHit * (baselineScorePerTile * 4);
-  return 0;
+  return baselineScorePerTile * tilesHit ^ 2;
 };
 export function findConnectedTiles(board: Tileset, row: number, col: number) {
   const directions = { up: [0, 1], down: [0, -1], left: [1, 0], right: [-1, 0] };
@@ -195,11 +192,9 @@ export function collapseToCenter(board: TileData[][]): TileData[][] {
 
   let startCol: number;
   if (cols % 2 === 1) {
-    // odd width: single center
     const center = Math.floor(cols / 2);
     startCol = center - Math.floor(activeCols / 2);
   } else {
-    // even width: two middle columns
     const centerLeft = cols / 2 - 1;
     startCol = centerLeft - Math.floor((activeCols - 1) / 2);
   }
@@ -222,6 +217,7 @@ export function collapseToCenter(board: TileData[][]): TileData[][] {
 
   return newBoard;
 }
+
 export function test() {
   const width = 4;
   const height = 4;
