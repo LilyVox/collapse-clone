@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { type Tileset, BlockColors } from './types';
+import { useState } from 'react';
+import { type Tileset, BlockColors, type convergeOptions } from './types';
 import {
   createRandomBoard,
   collapseToCenter,
@@ -12,10 +12,10 @@ import {
 import Board from './components/Board';
 import { Button } from '@/components/ui/button';
 
-const Game: React.FC = () => {
+const Game = ({ colors = 3 }: convergeOptions) => {
   const width: number = 7;
   const height: number = 9;
-  const [board, setBoard] = useState<Tileset>(createRandomBoard(width, height));
+  const [board, setBoard] = useState<Tileset>(createRandomBoard(width, height, colors));
   const [score, setScore] = useState(0);
 
   const handleTileClick = (row: number, col: number) => {
@@ -33,21 +33,22 @@ const Game: React.FC = () => {
     }
   };
 
-  const handleReset = () => {
-    setBoard(createRandomBoard(7, 9));
+  const handleReset = (colors: number) => {
+    setBoard(createRandomBoard(7, 9, colors));
     setScore(0);
   };
 
   return (
     <div className='flex flex-col items-center gap-4 p-6'>
-      <h1 className='text-2xl font-bold montserrat-700'>
-        Collapse Clone
-      </h1>
-      <div className='text-lg text-shadow-chart-1 text-shadow-[1px_1px,-1px_-1px,-1px_1px,1px_-1px]'>
-        Score: {score}
-      </div>
+      <h1 className='text-2xl font-bold montserrat-700'>Collapse Clone</h1>
+      <div className='text-lg'>Score: {score}</div>
       <Board board={board} onTileClick={handleTileClick} />
-      <Button onClick={handleReset}>Reset Game</Button>
+      <Button
+        onClick={() => {
+          handleReset(colors);
+        }}>
+        Reset Game
+      </Button>
     </div>
   );
 };

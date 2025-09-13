@@ -1,9 +1,13 @@
-import Game from "../game/Game";
-export default function Home() {
+import Game from "@/game/Game";
+import LevelSelect from "@/game/UI/LevelSelect";
+import StartGame from "@/game/UI/StartGame";
 
+export default function Home() {
   return (
-    <section>
-      <Game />
+    <section className='flex flex-col items-center'>
+      <StartGame />
+      <LevelSelect/>
+      <Game colors={3} />
     </section>
   );
 }

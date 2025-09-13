@@ -21,4 +21,7 @@ export type BoardProps = {
   onTileClick: (row: number, col: number) => void;
   highlightGroup?: { row: number; col: number }[];
 };
-
+export interface convergeOptions {
+  colors: number;
+  
+}

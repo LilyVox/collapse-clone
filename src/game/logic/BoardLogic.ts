@@ -1,6 +1,6 @@
 /* eslint-disable for-direction */
 import { type Tileset, type TileData, BlockColors } from '../types';
-const COLORS = [BlockColors.red, BlockColors.yellow, BlockColors.green, BlockColors.empty];
+const COLORS = [BlockColors.red, BlockColors.green, BlockColors.blue, BlockColors.yellow, BlockColors.purple];
 
 export const strToBlockColor = (s: string) => {
   switch (s) {
@@ -36,13 +36,13 @@ export const blockColorToStr = (c: string | null) => {
   }
   return '';
 };
-export const createRandomBoard = (width: number, height: number): Tileset => {
+export const createRandomBoard = (width: number, height: number, colors: number): Tileset => {
   const newBoard = Array.from({ length: height }, (_, r) =>
     Array.from({ length: width }, (_, c) => ({
       id: `${r}-${c}`,
       row: r,
       col: c,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      color: COLORS[Math.floor(Math.random() * colors)],
     }))
   );
   return applyGravity(newBoard);
@@ -229,6 +229,6 @@ export function test() {
   ];
   const tiles = loadBoardFromStringArr(example, height, width);
   console.log('tiles', tiles);
-  const randTiles = createRandomBoard(width, height);
+  const randTiles = createRandomBoard(width, height, 4);
   console.log('randTilesWriten', writeBoardToStringArr(randTiles, width, height));
 }
