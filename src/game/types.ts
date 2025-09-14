@@ -23,5 +23,7 @@ export type BoardProps = {
 };
 export interface convergeOptions {
   colors: number;
+  width: number;
+  height: number;
   
 }

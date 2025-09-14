@@ -3,7 +3,7 @@ export default function Header() {
   const linkTheme = "red-hat-text-450 text-primary-text hover:text-main transition-colors";
 
   return (
-    <header className='backdrop-blur sticky top-0 z-50 border-b-2 bg-secondary border-border'>
+    <header className='w-full backdrop-blur sticky top-0 z-50 border-b-2 bg-secondary border-border'>
       <div className='max-w-6xl mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='flex items-center justify-between h-16 p-2'>
           <div className='flex items-center gap-4 p-2'>

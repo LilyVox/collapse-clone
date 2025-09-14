@@ -7,7 +7,7 @@ export default function Home() {
     <section className='flex flex-col items-center'>
       <StartGame />
       <LevelSelect/>
-      <Game colors={3} />
+      <Game />
     </section>
   );
 }

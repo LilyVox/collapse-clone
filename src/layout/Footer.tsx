@@ -1,7 +1,7 @@
 export default function Footer() {
   const linkTheme = "red-hat-text-450 text-primary-text hover:text-main transition-colors";
   return (
-    <footer className='mt-12 border-t-2 backdrop-blur bg-secondary border-border '>
+    <footer className='w-full mt-12 border-t-2 backdrop-blur bg-secondary border-border '>
       <div className='max-w-6xl mx-auto px-6 py-10'>
         <div className='flex flex-col md:flex-row md:items-center md:justify-between'>
           <div>

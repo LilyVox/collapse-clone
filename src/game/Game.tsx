@@ -1,3 +1,4 @@
+/* eslint-disable no-constant-binary-expression */
 import { useState } from 'react';
 import { type Tileset, BlockColors, type convergeOptions } from './types';
 import {
@@ -11,18 +12,22 @@ import {
 } from './logic/BoardLogic';
 import Board from './components/Board';
 import { Button } from '@/components/ui/button';
+import { useParams, Link } from 'react-router';
 
-const Game = ({ colors = 3 }: convergeOptions) => {
-  const width: number = 7;
-  const height: number = 9;
-  const [board, setBoard] = useState<Tileset>(createRandomBoard(width, height, colors));
+const defaultConOptions: convergeOptions = { colors: 3, width: 7, height: 11 };
+
+const Game = () => {
+  const { colors, width, height } = useParams();
+  const { colors: dColors, width: dWidth, height: dHeight } = defaultConOptions;
+  const [board, setBoard] = useState<Tileset>(
+    createRandomBoard(Number(width)?? dWidth, Number(height)?? dHeight, Number(colors) ?? dColors)
+  );
   const [score, setScore] = useState(0);
 
   const handleTileClick = (row: number, col: number) => {
-    console.log('Clicked:', row, col);
-    // 🔗 this is where the game logic goes (find group → remove → collapse → update score).
-    // For now, just remove the clicked tile:d
-    console.log('connected tiles', findConnectedTiles(board, row, col));
+    // console.log('Clicked:', row, col);
+    // console.log('connected tiles', findConnectedTiles(board, row, col));
+    if (board[row][col].color === BlockColors.empty) return;
     const tilesToChange = findConnectedTiles(board, row, col);
     if (tilesToChange.length > 3) {
       setBoard((prev) => {
@@ -34,7 +39,7 @@ const Game = ({ colors = 3 }: convergeOptions) => {
   };
 
   const handleReset = (colors: number) => {
-    setBoard(createRandomBoard(7, 9, colors));
+    setBoard(createRandomBoard(Number(width)?? dWidth, Number(height)?? dHeight, Number(colors) ?? dColors));
     setScore(0);
   };
 
@@ -43,12 +48,18 @@ const Game = ({ colors = 3 }: convergeOptions) => {
       <h1 className='text-2xl font-bold montserrat-700'>Collapse Clone</h1>
       <div className='text-lg'>Score: {score}</div>
       <Board board={board} onTileClick={handleTileClick} />
-      <Button
-        onClick={() => {
-          handleReset(colors);
-        }}>
-        Reset Game
-      </Button>
+      <div className='w-xs flex flex-row justify-between'>
+        <Link to='/' className='cursor-pointer'>
+          <Button>Back</Button>
+        </Link>
+        <Button
+        className='z-[1]'
+          onClick={() => {
+            handleReset(Number(colors) ?? dColors);
+          }}>
+          Reset Game
+        </Button>
+      </div>
     </div>
   );
 };
